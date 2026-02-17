@@ -18,24 +18,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           
+      # Add this if gradlew is in a subfolder
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+        working-directory: ./android  # ← Change to your subfolder name
+        
       - name: Build with Gradle
         run: ./gradlew assembleRelease
-        
-      # UPDATED: v4 requires unique artifact names
-      - name: Upload APK as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-${{ github.run_number }}  # Unique name required!
-          path: app/build/outputs/apk/release/app-release.apk
-          retention-days: 5
-          
-      # Create Release using the artifact
-      - name: Create Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v1
-        with:
-          files: app/build/outputs/apk/release/app-release.apk
-          tag_name: v${{ github.run_number }}
-          generate_release_notes: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ./android  # ← Same subfolder name here
