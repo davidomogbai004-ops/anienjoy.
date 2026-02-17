@@ -10,10 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -21,12 +21,15 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assembleRelease
         
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
+      # UPDATED: v4 requires unique artifact names
+      - name: Upload APK as Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: app-release
+          name: app-release-${{ github.run_number }}  # Unique name required!
           path: app/build/outputs/apk/release/app-release.apk
+          retention-days: 5
           
+      # Create Release using the artifact
       - name: Create Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
